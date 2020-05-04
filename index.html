@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>tenis</title>
+	<style>
+		body {
+			margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: darkgrey;
+		}
+		canvas{
+			border: 3px solid #fff;
+		}
+	</style>
+</head>
+<body>
+	<canvas></canvas>
+	
+		<script>
+			const canvas = document.querySelector('canvas');
+			const ctx = canvas.getContext('2d');
+			const cw = canvas.width = 1000;
+			const ch = canvas.height = 500;
+			const ballSize = 14;
+			var ballX = cw/2-ballSize/2;
+			var ballY = ch/2-ballSize/2;
+			const paddelHight = 100;
+			const paddelWidth = 20;
+			const playerX = 70;
+			const aiX = 910;
+			let playerY= ch/2 - paddelHight/2;
+			let aiY = ch/2 - paddelHight/2;
+			var scoreP = 0;
+			var scoreAi = 0;
+			const lineWidth = 6;
+			const lineHeight= 16;
+			
+			var ballSpeedX = 2;
+			var ballSpeedY = 2;
+			
+			function player(){
+				ctx.fillStyle="Green";
+				ctx.fillRect(playerX, playerY, paddelWidth, paddelHight);
+			}
+			
+			function ai(){
+				ctx.fillStyle="yellow";
+				ctx.fillRect(aiX, aiY, paddelWidth, paddelHight);
+				
+			}
+			
+			function rekt(){
+				ctx.fillStyle="red";
+				ctx.fillRect(ballX, ballY, 5, 5);
+				
+			}
+			
+			function ball(){
+			ctx.fillStyle = "#fff";
+			ctx.fillRect(ballX, ballY, ballSize, ballSize);
+				
+			ballX += ballSpeedX;
+			ballY += ballSpeedY;
+				
+			if(ballY <=0 || ballY + ballSize >= ch ){
+				ballSpeedY = -ballSpeedY;
+				speedUp();
+			}
+			if(ballX <=0 || ballX + ballSize >= cw){
+				if(ballX + ballSize >= cw){				 //PUNKTY P
+					scores(scoreP++, scoreAi);
+					reset();
+					}
+				else if(ballX <=0){                  	//PUNKTY AI
+					scores(scoreP, scoreAi++);
+					reset();
+				}
+			 	ballSpeedX = -ballSpeedX;
+				speedUp();
+			} 
+			if((ballX+14 >= aiX) && (ballX+14<=aiX+20)&& (aiY<=ballY) && (aiY+paddelHight>=ballY)) {
+					ballSpeedY = -ballSpeedY;
+					ballSpeedX = -ballSpeedX;
+				}
+			if((ballX <= playerX+20) && (ballX >= playerX) && (playerY <= ballY) && (playerY+paddelHight+14 >=ballY)){ //PLAYER 
+					ballSpeedY = -ballSpeedY;
+					ballSpeedX = -ballSpeedX;
+			}}
+			
+			function table(){
+				ctx.fillStyle = 'black';
+				ctx.fillRect(0,0,cw,ch)
+				for(let i = 20; i < ch; i +=30){
+					ctx.fillStyle="grey";
+					ctx.fillRect(cw/2-lineWidth/2, i, lineWidth, lineHeight);
+				}
+				
+			};
+			
+			topCanvas = canvas.offsetTop;
+			canvas.addEventListener("mousemove", playerPosition);
+			
+			function playerPosition(e){
+				playerY = e.clientY-topCanvas-paddelHight/2;
+				if(playerY >= ch - paddelHight){
+					playerY = ch - paddelHight;
+				}
+				if (playerY <= 0){
+					playerY=0;
+				}  
+			}
+			
+			function speedUp(){
+				
+				if(ballSpeedX !=16 && ballSpeedX !=-16){
+				ballSpeedX>0 ? ballSpeedX++ : ballSpeedX--;
+				}
+				else if(ballSpeedY !=16 && ballSpeedY !=-16){
+				ballSpeedY>0 ? ballSpeedY++ : ballSpeedY--;
+				}
+				
+			}
+			function scores(scoreAi, scoreP){			
+				var tmpP = this.scoreP.toString();
+				var tmpAi = this.scoreAi.toString();
+				ctx.fillStyle = "grey";
+				ctx.fillText(tmpP, 100, 50);
+				ctx.fillText(tmpAi, 900, 50);
+				ctx.font = "30px Verdana";
+			}
+			
+			function aiPosition(){
+			const middlePaddel = aiY + paddelHight/2;
+			const middleBall = ballY + ballSize /2;
+			if(ballX > 500){
+				if (middlePaddel - middleBall > 200){
+					aiY -= 100;	
+				}
+				else if (middlePaddel - middleBall > 60){
+					aiY -= 30;
+				}
+				else if (middlePaddel - middleBall < -200){
+					aiY += 100;
+				}
+				else if (middlePaddel - middleBall < -60){
+					aiY += 30;
+				}
+				else if(ballX <= 500 && ballX > 150){
+				if (middlePaddel - middleBall > 100){
+					aiY -= 3;
+				}
+				else if(middlePaddel - middleBall < -100){
+					aiY += 3;
+				}
+				}
+				
+			}}
+			
+			function reset(){
+					ballX = cw/2-ballSize/2;
+					ballY = ch/2-ballSize/2;
+					ballSpeedX = 2;
+					ballSpeedY = 2;
+			}
+			function game(){
+				table();
+				ball();
+				player();
+				ai();
+				aiPosition();
+				rekt();
+				scores();
+			}
+	
+			setInterval(game, 1000/60)
+		</script>
+</body>
+</html>
